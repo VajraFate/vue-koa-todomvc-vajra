@@ -1,6 +1,6 @@
 <template>
   <el-row class="content">
-    <el-col :xs="{span:20,offset:2}" :sm="{span:8,offset:8}">
+    <el-col :xs="20" :sm="8">
       <span>
         欢迎：{{name}}！你的待办事项是：
       </span>
@@ -59,7 +59,7 @@ export default {
       this.id = userInfo.id
       this.name = userInfo.name
     } else {
-      this.id = ''
+      this.id = 1
       this.name = ''
     }
     this.getTodolist()
@@ -98,7 +98,7 @@ export default {
       let obj = {
         status: false,
         content: this.todos,
-        id: this.id
+        user_id: this.id
       }
       this.$http.post('/api/todolist', obj)
         .then((res) => {
@@ -118,7 +118,10 @@ export default {
       this.todos = ''
     },
     update (index) {
-      this.$http.put('/api/todolist/' + this.id + '/' + this.list[index].id + '/' + this.list[index].status)
+      this.$http.put('/api/todolist/' + this.id, {
+        id: this.list[index].id,
+        status: this.list[index].status === 0 ? 1: 0,
+      })
         .then((res) => {
           if (res.status === 200) {
             this.$message({
@@ -135,14 +138,14 @@ export default {
         })
     },
     remove (index) {
-      this.$http.delete('/api/todolist/' + this.id + '/' + this.list[index].id)
+      this.$http.delete('/api/todolist/'+ this.list[index].id)
         .then((res) => {
           if (res.status === 200) {
             this.$message({
               type: 'success',
               message: '任务删除成功！'
             })
-            this.getTodolist()
+            // this.getTodolist()
           } else {
             this.$message.error('任务删除失败！')
           }
@@ -161,7 +164,7 @@ export default {
       }
     },
     getTodolist () {
-      const getTodolist = this.$http.get('/api/todolist/' + this.id)
+      const getTodolist = this.$http.get('/api/todolist')
       getTodolist
         .then((res) => {
           if (res.status === 200) {
